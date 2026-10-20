@@ -5,11 +5,12 @@ services:
     build: .
     command: gunicorn bookstore_project.wsgi -b 0.0.0.0:8000
     environment:
-      - ENVIRONMENT=production
-      - SECRET_KEY=p_o3vp1rg5)t^lxm9-43%0)s-=1qpeq%o7gfq+e4#*!t+_ev82
-      - DEBUG=0
-      - STRIPE_LIVE_PUBLISHABLE_KEY=<pk_test_TjxduFy6T6U3lVvLmQkKwHFj00yg7SSVJx>
-      - STRIPE_LIVE_SECRET_KEY=<sk_test_EquFxHnbHNHa4JGZBOYbylvx002gr3ac73>
+      ENVIRONMENT: production
+      SECRET_KEY: ${SECRET_KEY:?Set SECRET_KEY in .env}
+      DEBUG: 0
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      STRIPE_TEST_PUBLISHABLE_KEY: ${STRIPE_TEST_PUBLISHABLE_KEY:-}
+      STRIPE_TEST_SECRET_KEY: ${STRIPE_TEST_SECRET_KEY:-}
     volumes:
       - .:/code
     ports:
@@ -18,4 +19,10 @@ services:
       - db
   db:
     image: postgres:11
- 
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+
+volumes:
+  postgres_data:
