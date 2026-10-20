@@ -1,6 +1,6 @@
 # Bookstore
 
-A Django learning project by Tayo Carl, focused on backend development: authentication, a book catalog, permissions, search, and a Stripe payment demonstration. The application runs with Docker and PostgreSQL.
+A Django project, focused on backend development: authentication, a book catalog, permissions, search, and a Stripe payment demonstration. The application runs with Docker and PostgreSQL.
 
 ## Features
 
@@ -27,23 +27,22 @@ The repository specifies Python 3.7, Django 2.2.7, and PostgreSQL 11. Python dep
 
 ### Configure the services
 
-Copy the example configuration before starting:
+Before starting, update `docker-compose.yml`:
 
-```bash
-cp .env.example .env
-```
+1. Replace the web service's checked-in `SECRET_KEY` with your own random value.
+2. Replace `STRIPE_TEST_PUBLISHABLE_KEY` and `STRIPE_TEST_SECRET_KEY` with your own test keys, without angle brackets, to enable checkout.
+3. Add this environment setting to the `db` service so a new PostgreSQL database initializes with the password expected by Django:
 
-Set `SECRET_KEY` and `POSTGRES_PASSWORD` to separate random values in `.env`. You can generate each value with:
+   ```yaml
+   db:
+     image: postgres:11
+     environment:
+       POSTGRES_PASSWORD: postgres
+     volumes:
+       - postgres_data:/var/lib/postgresql/data/
+   ```
 
-```bash
-python3 -c "import secrets; print(secrets.token_urlsafe(50))"
-```
-
-Add your own `STRIPE_TEST_PUBLISHABLE_KEY` and `STRIPE_TEST_SECRET_KEY` to try checkout; otherwise leave them blank. Do not include angle brackets around keys.
-
-Compose reads `.env` and passes the configured values to the services. Both Compose files require a nonempty secret and database password. `.env` is excluded from Git and Docker build contexts; commit only `.env.example` with placeholders.
-
-Django defaults to database `postgres`, user `postgres`, and host `db` on port `5432`. Compose gives Django and PostgreSQL the same `POSTGRES_PASSWORD`. The `db.sqlite3` file is not used. For an existing database volume, changing `.env` does not change the stored database password; use its existing password or update it in PostgreSQL first.
+Django defaults to database `postgres`, user `postgres`, password `postgres`, and host `db` on port `5432`. The `db.sqlite3` file is not used by the configured application. For an existing database volume, the initialization setting does not change its password.
 
 ### Build and start
 
@@ -103,7 +102,6 @@ docker compose down
 | Variable | Behavior |
 | --- | --- |
 | `SECRET_KEY` | Required Django secret key; settings supply no default. |
-| `POSTGRES_PASSWORD` | Database password shared by Django and the Compose database service. |
 | `DEBUG` | Integer flag, `0` or `1`; defaults to `0`. Local Compose sets `1`. |
 | `ENVIRONMENT` | Defaults to `development`; `production` enables HTTPS redirects and additional security settings. |
 | `DATABASE_URL` | Overrides corresponding default database connection settings through dj-database-url when supplied. |
@@ -142,14 +140,11 @@ This repository contains a historical learning implementation and requires updat
 
 - The runtime and dependencies are pinned to older versions. The Dockerfile installs an unpinned Pipenv, so rebuilding may require a Pipenv version compatible with Python 3.7.
 - The charge view grants book-access permission before confirming a successful payment and lacks an explicit login guard. Use it only as a test demonstration until this flow is corrected.
-- Checkout always uses test keys, including when `ENVIRONMENT=production`. Both Compose files deliberately configure the test demonstration; live payments are not implemented.
+- Checkout always uses test keys, including when `ENVIRONMENT=production`. The production Compose file supplies only live-key variables, so it does not configure the current checkout correctly.
 - Search matches titles only; its two `Q` conditions are identical.
-- Earlier versions contained hard-coded Django and Stripe keys. Rotate any real keys previously committed; removing values from the current files does not remove Git history.
+- Compose files contain hard-coded secret values. Replace them and move deployment secrets into environment-managed configuration.
 
 `docker-compose-prod.yml` and `heroku.yml` preserve the original deployment configuration. The previously documented Heroku hostname is `guarded-meadow-23348.herokuapp.com`; its availability has not been verified. A new deployment needs its own host configuration, database credentials, static/media handling, and migrations. The Heroku release command currently collects static files but does not run migrations.
 
-## Author and license
-
-Created by **Tayo Carl**.
-
-The original README states that this project is MIT licensed, but this folder does not include a `LICENSE` file.
+##  license
+MIT license

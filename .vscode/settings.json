@@ -1,3 +1,3 @@
 {
-  "python.pythonPath": "C:\\Users\\carlt\\.virtualenvs\\books-65vTPePr\\Scripts\\python.exe"
+    "python.terminal.useEnvFile": true
 }
