@@ -146,5 +146,3 @@ This repository contains a historical learning implementation and requires updat
 
 `docker-compose-prod.yml` and `heroku.yml` preserve the original deployment configuration. The previously documented Heroku hostname is `guarded-meadow-23348.herokuapp.com`; its availability has not been verified. A new deployment needs its own host configuration, database credentials, static/media handling, and migrations. The Heroku release command currently collects static files but does not run migrations.
 
-##  license
-MIT license
